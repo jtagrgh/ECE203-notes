@@ -8,8 +8,15 @@ from os import getcwd
 terms = {}
 
 # Get list of all directoring without any ignore keywords
-d_ignore = ["git", "scripts", "templates"]
+d_ignore = ["git", "scripts", "templates", "images"]
 all_dirs = [d[0] for d in walk("./") if not any(i in d[0] for i in d_ignore)];
+
+with open("./all-nodes/unparsed_index.html", "w") as f:
+    for d in all_dirs:
+        if ("all-nodes" in d): continue
+        if "unparsed_index.html" not in listdir(d): continue
+        href = path.join(d, "index.html")
+        f.write(f"<li><a href=\"{href}\">{d}</a></li>\n")
 
 header = open(path.join(all_dirs[0], "templates", "header.html"), "r");
 middle = open(path.join(all_dirs[0], "templates", "middle.html"), "r");
@@ -25,6 +32,7 @@ for i in range(len(all_dirs)):
     next_dir = "../" * depth + all_dirs[(i+1) % len(all_dirs)]
 
     cwd_dirs = [i for i in next(walk("./"))[1] if not any(k in i for k in d_ignore)]
+    cwd_dirs.sort()
 
     unparsed_lines = []
     parsed_lines = [f"\t\t<!-- {all_dirs[i]} -->\n"]
@@ -33,7 +41,7 @@ for i in range(len(all_dirs)):
     if (len(cwd_dirs) > 0):
         toc_lines = [
             "<h3>table-of-contents</h3>\n", 
-            "<ul>\n", 
+            "<ul>\n",
         ]
 
         for d in cwd_dirs:
@@ -41,7 +49,8 @@ for i in range(len(all_dirs)):
             toc_lines.append(f"\t<li><a href=\"{sub_path}\">{d}</a></li>\n")
 
         toc_lines += [
-            "</ul>"
+            "</ul>",
+            "<h3>=============</h3>"
         ]
 
     parsed_lines += toc_lines
